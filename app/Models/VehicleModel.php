@@ -12,5 +12,18 @@ class VehicleModel extends Model
         'nama',
         'kode',
         'deskripsi',
+        'gambar',
+        'id_kategori',
+        'id_volume',
     ];
+
+    public function kategori()
+    {
+        return $this->belongsTo(Kategori::class, 'id_kategori');
+    }
+
+    public function volume()
+    {
+        return $this->belongsTo(VolumeMesin::class, 'id_volume');
+    }
 }

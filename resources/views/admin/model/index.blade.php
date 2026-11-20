@@ -155,13 +155,15 @@
       </div>
       <!-- /.card-body -->
 
+     
       @if($models->hasPages())
-        <div class="card-footer clearfix bg-white">
-          <div class="d-flex justify-content-end">
-            {{ $models->links() }}
+          <div class="card-footer bg-white">
+              <div class="d-flex justify-content-end">
+                  {{ $models->links('pagination::bootstrap-5') }}
+              </div>
           </div>
-        </div>
       @endif
+
     </div>
     <!--end::Card-->
 

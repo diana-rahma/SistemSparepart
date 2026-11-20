@@ -16,6 +16,9 @@ return new class extends Migration
             $table->string('nama');
             $table->string('kode')->nullable();
             $table->text('deskripsi')->nullable();
+            $table->string('gambar')->nullable();
+            $table->foreignId('id_kategori')->nullable()->constrained('kategoris')->onDelete('set null');
+            $table->foreignId('id_volume')->nullable()->constrained('volume_mesins')->onDelete('set null');
             $table->timestamps();
         });
     }
