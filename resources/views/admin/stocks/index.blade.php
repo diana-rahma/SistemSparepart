@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-{{-- tambahin kolom harga satuan --}}
 @section('content')
 <!--begin::App Content Header-->
 <div class="app-content-header">
@@ -9,7 +8,7 @@
     <!--begin::Row-->
     <div class="row">
       <div class="col-sm-6">
-        <h3 class="mb-0"><i class="bi bi-tags-fill text-primary me-2"></i>Kelola Stok</h3>
+        <h3 class="mb-0"><i class="bi bi-box-seam text-primary me-2"></i>Kelola Stok</h3>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-end">
@@ -52,8 +51,8 @@
         
         <div class="d-flex align-items-center gap-2">
           <form action="{{ route('admin.stok.index') }}" method="GET" class="d-flex gap-2">
-            <div class="input-group input-group-sm" style="width: 220px;">
-              <input type="text" name="search" class="form-control" placeholder="Cari stok..." value="{{ request('search') }}">
+            <div class="input-group input-group-sm" style="width: 250px;">
+              <input type="text" name="search" class="form-control" placeholder="Cari part / kode..." value="{{ request('search') }}">
               <button class="btn btn-outline-secondary" type="submit">
                 <i class="bi bi-search"></i>
               </button>
@@ -80,7 +79,9 @@
               <tr>
                 <th style="width: 60px" class="text-center">#</th>
                 <th>Nama Part</th>
+                <th>Kode Part</th>
                 <th>Stok</th>
+                <!-- <th>Harga Satuan</th> -->
                 <th style="width: 140px" class="text-center">Aksi</th>
               </tr>
             </thead>
@@ -91,11 +92,17 @@
                     {{ $stoks->firstItem() + $index }}
                   </td>
                   <td>
-                    <span class="fw-bold text-dark">{{ $item->part?->nama ?? '-' }}</span>
+                    <span class="fw-bold text-dark">{{ $item->part?->nama_parts ?? $item->part?->nama_part ?? '-' }}</span>
                   </td>
-                  <td class="text-muted">
-                    {{ $item->jumlah ?? '-' }}
+                  <td>
+                    <span class="badge bg-secondary font-monospace">{{ $item->part?->kode_parts ?? $item->part?->kode_part ?? '-' }}</span>
                   </td>
+                  <td class="fw-semibold">
+                    {{ number_format($item->jumlah ?? 0, 0, ',', '.') }}
+                  </td>
+                  <!-- <td class="fw-semibold text-success">
+                    Rp {{ number_format($item->harga_satuan ?? 0, 0, ',', '.') }}
+                  </td> -->
                   <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">
                       <a href="{{ route('admin.stok.edit', $item->id) }}" class="btn btn-outline-warning" title="Edit Stok">
@@ -117,7 +124,7 @@
                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                           </div>
                           <div class="modal-body">
-                            Apakah Anda yakin ingin menghapus stok <strong>{{ $item->nama }}</strong>?
+                            Apakah Anda yakin ingin menghapus stok part <strong>{{ $item->part?->nama_parts ?? $item->part?->nama_part ?? 'ini' }}</strong>?
                           </div>
                           <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
@@ -147,12 +154,13 @@
       <!-- /.card-body -->
 
       @if($stoks->hasPages())
-        <div class="card-footer clearfix bg-white">
-          <div class="d-flex justify-content-end">
-            {{ $stoks->links() }}
+          <div class="card-footer bg-white">
+              <div class="d-flex justify-content-end">
+                  {{ $stoks->links('pagination::bootstrap-5') }}
+              </div>
           </div>
-        </div>
       @endif
+
     </div>
     <!--end::Card-->
 

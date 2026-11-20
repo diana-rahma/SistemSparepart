@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
             $table->integer('jumlah')->nullable();
+            $table->decimal('harga_satuan', 15, 2)->nullable();
             $table->foreignId('part_id')->constrained('parts')->onDelete('cascade');
             $table->timestamps();
         });

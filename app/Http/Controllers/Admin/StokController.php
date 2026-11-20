@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Stok;
 use App\Models\Parts;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class StokController extends Controller
 {
@@ -19,10 +20,11 @@ class StokController extends Controller
         $stoks = Stok::with('part')
             ->when($search, function ($query, $search) {
                 return $query->whereHas('part', function ($q) use ($search) {
-                    $q->where('nama', 'like', "%{$search}%");
+                    $q->where('nama_parts', 'like', "%{$search}%")
+                      ->orWhere('kode_parts', 'like', "%{$search}%");
                 });
             })
-            ->latest()
+            ->oldest()
             ->paginate(10)
             ->withQueryString();
 
@@ -34,7 +36,9 @@ class StokController extends Controller
      */
     public function create()
     {
-        return view('admin.stocks.create');
+        $parts = Parts::orderBy('nama_parts', 'asc')->get();
+
+        return view('admin.stocks.create', compact('parts'));
     }
 
     /**
@@ -43,29 +47,39 @@ class StokController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'stok' => 'nullable|integer|max:100000',
+            'part_id' => 'required|exists:parts,id',
+            'jumlah' => 'required|integer|min:0|max:100000',
+            'harga_satuan' => 'nullable|numeric|min:0',
         ], [
-            'nama.required' => 'Nama part wajib diisi.',
-            'nama.max' => 'Nama part maksimal 255 karakter.',
-            'stok.max' => 'Stok maksimal 100000.',
+            'part_id.required' => 'Part wajib dipilih.',
+            'part_id.exists' => 'Part yang dipilih tidak valid.',
+            'jumlah.integer' => 'Jumlah stok harus berupa angka.',
+            'jumlah.required' => 'Jumlah stok wajib diisi',
+            'harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
+            'harga_satuan.min' => 'Harga satuan tidak boleh negatif.',
         ]);
 
-        // find or create part, then create stock record
-        $part = Parts::firstOrCreate([
-            'nama' => $validated['nama'],
-        ], [
-            'kode' => null,
-            'deskripsi' => null,
-        ]);
+        DB::transaction(function () use ($validated) {
+            $stok = Stok::where('part_id', $validated['part_id'])
+                ->lockForUpdate()
+                ->first();
 
-        Stok::create([
-            'jumlah' => $validated['stok'] ?? null,
-            'part_id' => $part->id,
-        ]);
+            if ($stok) {
+                $stok->jumlah = ($stok->jumlah ?? 0) + $validated['jumlah'];
+                $stok->save();
+
+                return;
+            }
+
+            Stok::create([
+                'part_id' => $validated['part_id'],
+                'jumlah' => $validated['jumlah'],
+                'harga_satuan' => $validated['harga_satuan'] ?? 0,
+            ]);
+        });
 
         return redirect()->route('admin.stok.index')
-            ->with('success', 'Stok baru berhasil ditambahkan!');
+            ->with('success', 'Jumlah stok berhasil ditambahkan!');
     }
 
     /**
@@ -82,8 +96,9 @@ class StokController extends Controller
     public function edit($id)
     {
         $stok = Stok::findOrFail($id);
+        $parts = Parts::orderBy('nama_parts', 'asc')->get();
 
-        return view('admin.stocks.edit', compact('stok'));
+        return view('admin.stocks.edit', compact('stok', 'parts'));
     }
 
     /**
@@ -94,23 +109,23 @@ class StokController extends Controller
         $stok = Stok::findOrFail($id);
 
         $validated = $request->validate([
-            'nama' => 'required|string|max:255',
-            'stok' => 'nullable|integer|max:100000',
+            'part_id' => 'required|exists:parts,id',
+            'jumlah' => 'required|integer|min:0|max:100000',
+            'harga_satuan' => 'nullable|numeric|min:0',
         ], [
-            'nama.required' => 'Nama part wajib diisi.',
-            'nama.max' => 'Nama part maksimal 255 karakter.',
-            'stok.max' => 'Stok maksimal 100000.',
+            'part_id.required' => 'Part wajib dipilih.',
+            'part_id.exists' => 'Part yang dipilih tidak valid.',
+            'jumlah.integer' => 'Jumlah stok harus berupa angka.',
+            'jumlah.required' => 'Jumlah stok wajib diisi',
+            'harga_satuan.numeric' => 'Harga satuan harus berupa angka.',
+            'harga_satuan.min' => 'Harga satuan tidak boleh negatif.',
         ]);
 
-        // update part name and stock jumlah
-        if ($stok->part) {
-            $stok->part->update(['nama' => $validated['nama']]);
-        } else {
-            $part = Parts::firstOrCreate(['nama' => $validated['nama']]);
-            $stok->part_id = $part->id;
-        }
-
-        $stok->update(['jumlah' => $validated['stok'] ?? $stok->jumlah]);
+        $stok->update([
+            'part_id' => $validated['part_id'],
+            'jumlah' => $validated['jumlah'] ?? 0,
+            'harga_satuan' => $validated['harga_satuan'] ?? 0,
+        ]);
 
         return redirect()->route('admin.stok.index')
             ->with('success', 'Data stok berhasil diperbarui!');
@@ -125,6 +140,6 @@ class StokController extends Controller
         $stok->delete();
 
         return redirect()->route('admin.stok.index')
-            ->with('success', 'Kategori berhasil dihapus!');
+            ->with('success', 'Stok berhasil dihapus!');
     }
 }

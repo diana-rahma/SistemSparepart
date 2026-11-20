@@ -6,7 +6,7 @@
   <div class="container-fluid">
     <div class="row">
       <div class="col-sm-6">
-        <h3 class="mb-0"><i class="bi bi-plus-circle text-primary me-2"></i>Tambah Kategori Baru</h3>
+        <h3 class="mb-0"><i class="bi bi-plus-circle text-primary me-2"></i>Tambah Stok Baru</h3>
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-end">
@@ -34,35 +34,60 @@
             @csrf
             <div class="card-body">
               <div class="mb-3">
-                <label for="nama" class="form-label font-weight-bold">Nama Part <span class="text-danger">*</span></label>
-                <input 
-                  type="text" 
-                  name="nama" 
-                  id="nama" 
-                  class="form-control @error('nama') is-invalid @enderror" 
-                  placeholder="Contoh: Mesin, Kelistrikan, MPV" 
-                  value="{{ old('nama') }}" 
+                <label for="part_id" class="form-label font-weight-bold">Pilih Part <span class="text-danger">*</span></label>
+                <select 
+                  name="part_id" 
+                  id="part_id" 
+                  class="form-select @error('part_id') is-invalid @enderror" 
                   required
                 >
-                @error('nama')
+                  <option value="">-- Pilih Part --</option>
+                  @foreach($parts as $part)
+                    <option value="{{ $part->id }}" {{ old('part_id') == $part->id ? 'selected' : '' }}>
+                      {{ $part->nama_parts ?? $part->nama_part }} {{ ($part->kode_parts ?? $part->kode_part) ? '('.($part->kode_parts ?? $part->kode_part).')' : '' }}
+                    </option>
+                  @endforeach
+                </select>
+                @error('part_id')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
 
               <div class="mb-3">
-                <label for="stok" class="form-label">Stok</label>
+                <label for="jumlah" class="form-label font-weight-bold">Jumlah Stok</label>
                 <input 
-                  type="text" 
-                  name="stok" 
-                  id="stok" 
-                  class="form-control @error('stok') is-invalid @enderror" 
-                  value="{{ old('stok') }}"
+                  type="number" 
+                  name="jumlah" 
+                  id="jumlah" 
+                  min="0"
+                  class="form-control @error('jumlah') is-invalid @enderror" 
+                  placeholder="Contoh: 100" 
                 >
-                <div class="form-text">Jumlah stok yang tersedia.</div>
-                @error('stok')
+                <div class="form-text">Jumlah stok part yang tersedia.</div>
+                @error('jumlah')
                   <div class="invalid-feedback">{{ $message }}</div>
                 @enderror
               </div>
+
+              <!-- <div class="mb-3">
+                <label for="harga_satuan" class="form-label font-weight-bold">Harga Satuan (Rp)</label>
+                <div class="input-group">
+                  <span class="input-group-text">Rp</span>
+                  <input 
+                    type="number" 
+                    name="harga_satuan" 
+                    id="harga_satuan" 
+                    min="0"
+                    step="0.01"
+                    class="form-control @error('harga_satuan') is-invalid @enderror" 
+                    placeholder="Contoh: 150000" 
+                  >
+                </div>
+                <div class="form-text">Harga satuan untuk part ini dalam Rupiah.</div>
+                @error('harga_satuan')
+                  <div class="text-danger small mt-1">{{ $message }}</div>
+                @enderror
+              </div> -->
 
             </div>
 

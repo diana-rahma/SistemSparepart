@@ -10,6 +10,7 @@ class Stok extends Model
 
     protected $fillable = [
         'jumlah',
+        'harga_satuan',
         'part_id',
     ];
 
