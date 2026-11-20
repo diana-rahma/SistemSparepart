@@ -13,6 +13,9 @@ return new class extends Migration
     {
         Schema::create('parts', function (Blueprint $table) {
             $table->id();
+            $table->string('nama_parts')->nullable();
+            $table->string('kode_parts')->nullable();
+            $table->string('deskripsi')->nullable();
             $table->timestamps();
         });
     }
