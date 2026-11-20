@@ -2,8 +2,9 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Kategori;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Schema;
 
 class KategoriSeeder extends Seeder
 {
@@ -12,23 +13,50 @@ class KategoriSeeder extends Seeder
      */
     public function run(): void
     {
+        Schema::disableForeignKeyConstraints();
+        Kategori::query()->delete();
+        Schema::enableForeignKeyConstraints();
+
         $categories = [
-            ['nama' => 'Mesin', 'kode' => 'KAT-MSN', 'deskripsi' => 'Komponen suku cadang mesin kendaraan'],
-            ['nama' => 'Kelistrikan', 'kode' => 'KAT-ELK', 'deskripsi' => 'Sistem kelistrikan, aki, lampu dan kabel'],
-            ['nama' => 'Pengereman', 'kode' => 'KAT-PRM', 'deskripsi' => 'Kampas rem, piringan cakram dan minyak rem'],
-            ['nama' => 'Suspensi', 'kode' => 'KAT-SPS', 'deskripsi' => 'Shockbreaker, per dan kaki-kaki kendaraan'],
-            ['nama' => 'Transmisi', 'kode' => 'KAT-TRM', 'deskripsi' => 'Komponen kopling, v-belt dan sistem transmisi'],
-            ['nama' => 'MPV', 'kode' => 'KAT-MPV', 'deskripsi' => 'Kategori tipe kendaraan Multi Purpose Vehicle'],
-            ['nama' => 'SUV', 'kode' => 'KAT-SUV', 'deskripsi' => 'Kategori tipe kendaraan Sport Utility Vehicle'],
-            ['nama' => 'Sedan', 'kode' => 'KAT-SDN', 'deskripsi' => 'Kategori tipe kendaraan Sedan'],
-            ['nama' => 'Hatchback', 'kode' => 'KAT-HBK', 'deskripsi' => 'Kategori tipe kendaraan Hatchback'],
+            [
+                'nama' => 'Kereta Rel Listrik (KRL)',
+                'kode' => 'KAT-KRL',
+                'deskripsi' => 'Sarana Kereta Rel Listrik (Electric Multiple Unit / EMU) untuk transportasi komuter dan perkotaan'
+            ],
+            [
+                'nama' => 'Kereta Rel Diesel (KRD)',
+                'kode' => 'KAT-KRD',
+                'deskripsi' => 'Sarana Kereta Rel Diesel (Diesel Multiple Unit / DMU, KRDE, KRDI) antar-kota dan bandara'
+            ],
+            [
+                'nama' => 'Lokomotif',
+                'kode' => 'KAT-LOK',
+                'deskripsi' => 'Sarana lokomotif penarik rangkaian kereta api (Diesel Hidrolik & Diesel Elektrik)'
+            ],
+            [
+                'nama' => 'Kereta Penumpang',
+                'kode' => 'KAT-KNP',
+                'deskripsi' => 'Kereta penumpang berbagai kelas (Eksekutif Stainless Steel, Luxury Sleeper, Panoramic, Ekonomi)'
+            ],
+            [
+                'nama' => 'Gerbong Barang',
+                'kode' => 'KAT-GBG',
+                'deskripsi' => 'Sarana gerbong angkutan barang (PPCW Peti Kemas, KKBW Batu Bara, TTW Tangki)'
+            ],
+            [
+                'nama' => 'Light Rail Transit (LRT)',
+                'kode' => 'KAT-LRT',
+                'deskripsi' => 'Sarana kereta api ringan modern perkotaan berteknologi otomasi GoA3'
+            ],
+            [
+                'nama' => 'Bogie & Running Gear',
+                'kode' => 'KAT-BOG',
+                'deskripsi' => 'Sistem bogie kereta (TB-398, TB-1014, Bolsterless), wheelset, dan perangkat mekanikal penunjang'
+            ],
         ];
 
         foreach ($categories as $cat) {
-            \App\Models\Kategori::updateOrCreate(
-                ['kode' => $cat['kode']],
-                $cat
-            );
+            Kategori::create($cat);
         }
     }
 }

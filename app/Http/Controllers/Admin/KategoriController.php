@@ -20,7 +20,7 @@ class KategoriController extends Controller
                              ->orWhere('kode', 'like', "%{$search}%")
                              ->orWhere('deskripsi', 'like', "%{$search}%");
             })
-            ->latest()
+            ->oldest()
             ->paginate(10)
             ->withQueryString();
 

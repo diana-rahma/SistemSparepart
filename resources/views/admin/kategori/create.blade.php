@@ -50,7 +50,7 @@
               </div>
 
               <div class="mb-3">
-                <label for="kode" class="form-label">Kode Kategori <span class="text-muted">(Opsional)</span></label>
+                <label for="kode" class="form-label">Kode Kategori </label>
                 <input 
                   type="text" 
                   name="kode" 
@@ -66,7 +66,7 @@
               </div>
 
               <div class="mb-3">
-                <label for="deskripsi" class="form-label">Deskripsi <span class="text-muted">(Opsional)</span></label>
+                <label for="deskripsi" class="form-label">Deskripsi </label>
                 <textarea 
                   name="deskripsi" 
                   id="deskripsi" 

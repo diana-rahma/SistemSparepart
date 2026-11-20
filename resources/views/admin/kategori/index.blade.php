@@ -155,13 +155,15 @@
       </div>
       <!-- /.card-body -->
 
-      @if($kategoris->hasPages())
-        <div class="card-footer clearfix bg-white">
-          <div class="d-flex justify-content-end">
-            {{ $kategoris->links() }}
-          </div>
+
+@if($kategoris->hasPages())
+    <div class="card-footer bg-white">
+        <div class="d-flex justify-content-end">
+            {{ $kategoris->links('pagination::bootstrap-5') }}
         </div>
-      @endif
+    </div>
+@endif
+
     </div>
     <!--end::Card-->
 
