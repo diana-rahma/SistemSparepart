@@ -93,7 +93,7 @@
       </main>
       <!--end::App Main-->
 
-      @include('layouts.footer')
+      <!-- @include('layouts.footer') -->
     </div>
     <!--end::App Wrapper-->
     <!--begin::Script-->
