@@ -21,7 +21,24 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
     ];
+
+    /**
+     * Check if user is an administrator.
+     */
+    public function isAdmin(): bool
+    {
+        return $this->role === 'admin';
+    }
+
+    /**
+     * Check if user is a buyer/regular customer.
+     */
+    public function isPembeli(): bool
+    {
+        return $this->role === 'pembeli' || $this->role === 'user';
+    }
 
     /**
      * The attributes that should be hidden for serialization.
