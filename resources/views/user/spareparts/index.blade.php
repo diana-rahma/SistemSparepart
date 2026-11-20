@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.user')
 
 @push('styles')
 <!-- Select2 CSS & Select2 Bootstrap 5 Theme -->
@@ -58,7 +58,7 @@
       <div class="col-sm-6">
         <h3 class="mb-0 text-primary font-weight-bold"></i>Katalog Sparepart
         </h3>
-        <p class="text-muted mb-0 fs-7">Cari dan temukan suku cadang kendaraan terbaik sesuai kebutuhan Anda.</p>
+        <!-- <p class="text-muted mb-0 fs-7">Cari dan temukan suku cadang kendaraan terbaik sesuai kebutuhan Anda.</p> -->
       </div>
       <div class="col-sm-6">
         <ol class="breadcrumb float-sm-end">
@@ -93,7 +93,8 @@
                 type="text" 
                 id="keywordSearch" 
                 class="form-control bg-light border-start-0 ps-0" 
-                placeholder="Ketik nama sparepart atau kode produk (opsional, misal: Filter Oli, Busi, Avanza...)"
+                placeholder="Ketik nama sparepart, kode part, atau tipe kendaraan..."
+                value="{{ $search ?? '' }}"
               />
               <button class="btn btn-outline-secondary" type="button" id="btnClearKeyword" title="Bersihkan pencarian">
                 <i class="bi bi-x-lg"></i>
@@ -106,64 +107,51 @@
 
     <!-- CARD 2: Searchable Dropdown Filters -->
     <div class="card filter-card shadow-sm mb-4">
-      <div class="card-header bg-white border-bottom-0 pt-3 pb-0 d-flex justify-content-between align-items-center">
-        <h5 class="card-title text-dark fw-bold mb-0">
-          <i class="bi bi-funnel-fill me-2 text-primary"></i>Filter Parameter Sparepart
-        </h5>
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="btnResetFilters">
-          <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter
-        </button>
-      </div>
+      <div class="card-header bg-white border-bottom-0 pt-3 pb-0 position-relative">
+  <h5 class="card-title text-dark fw-bold mb-0">
+    <i class="bi bi-funnel-fill me-2 text-primary"></i>Filter Parameter Sparepart
+  </h5>
+  <button type="button" class="btn btn-sm btn-outline-secondary position-absolute top-0 end-0 mt-3 me-3 z-2" id="btnResetFilters" style="z-index:2;">
+    <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter
+  </button>
+</div>
       <div class="card-body">
         <div class="row g-3">
-          <!-- 1. Kategori -->
-          <div class="col-md-3 col-sm-6">
+          <!-- Kategori -->
+          <div class="col-sm-4">
             <label for="filterKategori" class="form-label fw-semibold text-secondary fs-7">
               <i class="bi bi-grid-3x3-gap me-1"></i>Kategori
             </label>
             <select id="filterKategori" class="form-select select2-searchable" data-placeholder="-- Semua Kategori --">
               <option value=""></option>
               @foreach($kategoriList as $kat)
-                <option value="{{ $kat }}">{{ $kat }}</option>
+                <option value="{{ $kat }}" {{ (isset($selectedKategori) && $selectedKategori == $kat) ? 'selected' : '' }}>{{ $kat }}</option>
               @endforeach
             </select>
           </div>
 
-          <!-- 2. Volume Mesin -->
-          <div class="col-md-3 col-sm-6">
-            <label for="filterVolume" class="form-label fw-semibold text-secondary fs-7">
-              <i class="bi bi-speedometer2 me-1"></i>Volume Mesin
-            </label>
-            <select id="filterVolume" class="form-select select2-searchable" data-placeholder="-- Semua Volume Mesin --">
-              <option value=""></option>
-              @foreach($volumeMesinList as $vol)
-                <option value="{{ $vol }}">{{ $vol }}</option>
-              @endforeach
-            </select>
-          </div>
-
-          <!-- 3. Model -->
-          <div class="col-md-3 col-sm-6">
+          <!-- Model -->
+          <div class="col-sm-4">
             <label for="filterModel" class="form-label fw-semibold text-secondary fs-7">
-              <i class="bi bi-car-front me-1"></i>Model Kendaraan
+              <i class="bi bi-car-front me-1"></i>Model
             </label>
             <select id="filterModel" class="form-select select2-searchable" data-placeholder="-- Semua Model --">
               <option value=""></option>
-              @foreach($modelList as $mod)
-                <option value="{{ $mod }}">{{ $mod }}</option>
+              @foreach($modelList as $model)
+                <option value="{{ $model }}" {{ (isset($selectedModel) && $selectedModel == $model) ? 'selected' : '' }}>{{ $model }}</option>
               @endforeach
             </select>
           </div>
 
-          <!-- 4. Tahun -->
-          <div class="col-md-3 col-sm-6">
+          <!-- Tahun -->
+          <div class="col-sm-4">
             <label for="filterTahun" class="form-label fw-semibold text-secondary fs-7">
               <i class="bi bi-calendar-event me-1"></i>Tahun Pembuatan
             </label>
             <select id="filterTahun" class="form-select select2-searchable" data-placeholder="-- Semua Tahun --">
               <option value=""></option>
               @foreach($tahunList as $thn)
-                <option value="{{ $thn }}">{{ $thn }}</option>
+                <option value="{{ $thn }}" {{ (isset($selectedTahun) && $selectedTahun == $thn) ? 'selected' : '' }}>{{ $thn }}</option>
               @endforeach
             </select>
           </div>
@@ -184,20 +172,18 @@
     <div id="initialState" class="card text-center py-5 shadow-sm border-0">
       <div class="card-body">
         <div class="mb-3 text-primary">
-          <i class="bi bi-card-search display-1"></i>
         </div>
-        <h4 class="fw-bold text-dark">Siap Mencari Sparepart?</h4>
         <p class="text-muted col-md-6 mx-auto">
-          Silakan masukkan kata kunci pencarian atau pilih kriteria pada filter di atas (Kategori, Volume Mesin, Model, atau Tahun), lalu tekan tombol <strong>"Cari Suku Cadang"</strong> untuk menampilkan hasil.
+          Silakan masukkan kata kunci pencarian atau pilih kriteria pada filter di atas (Kategori, Volume Mesin, Model, atau Tahun), lalu tekan tombol <strong>"Cari Tipe Kendaraan"</strong> untuk menampilkan hasil.
         </p>
       </div>
     </div>
 
-    <!-- SECTION 3: Hasil Pencarian & Grid Spareparts (Tampil Setelah Searching) -->
+    <!-- SECTION 3: Hasil Pencarian & Grid Tipe Kendaraan (Tampil Setelah Searching) -->
     <div id="resultsSection" class="d-none">
       <div class="d-flex justify-content-between align-items-center mb-3">
         <h5 class="fw-bold mb-0 text-dark">
-          Hasil Pencarian Sparepart <span class="badge bg-primary rounded-pill ms-1 fs-7" id="resultCount">0 Suku Cadang</span>
+          Hasil Pencarian Tipe Kendaraan <span class="badge bg-primary rounded-pill ms-1 fs-7" id="resultCount">0 Tipe Kendaraan</span>
         </h5>
       </div>
 
@@ -205,68 +191,80 @@
       <div id="emptyState" class="card text-center py-5 shadow-sm d-none border-0">
         <div class="card-body">
           <i class="bi bi-exclamation-circle text-warning display-1"></i>
-          <h4 class="mt-3 fw-bold">Sparepart Tidak Ditemukan</h4>
-          <p class="text-muted">Tidak ada suku cadang yang sesuai dengan kriteria kata kunci/filter Anda.</p>
+          <h4 class="mt-3 fw-bold">Tipe Kendaraan Tidak Ditemukan</h4>
+          <p class="text-muted">Tidak ada tipe kendaraan yang sesuai dengan kriteria kata kunci/filter Anda.</p>
           <button type="button" class="btn btn-outline-primary mt-2" id="btnResetEmptyState">
             <i class="bi bi-arrow-counterclockwise me-1"></i>Reset Filter & Cari Lagi
           </button>
         </div>
       </div>
 
-      <!-- Spareparts Cards Grid -->
-      <div class="row g-4" id="sparepartsGrid">
-        @foreach($vehicles as $item)
-        <div class="col-lg-3 col-md-4 col-sm-6 sparepart-item" 
-             data-nama="{{ strtolower($item['nama']) }}"
-             data-kode="{{ strtolower($item['kode']) }}"
-             data-kategori="{{ $item['kategori'] }}"
-             data-volume="{{ $item['volume_mesin'] }}"
-             data-model="{{ $item['model'] }}"
-             data-tahun="{{ $item['tahun'] }}"
-             style="display: none;">
+      <!-- Tipe Kendaraan Cards Grid -->
+      <div class="row g-4" id="tipeKendaraanGrid">
+        @forelse($tipeKendaraans as $item)
+          @php
+            $spCount = $item->spareparts_count ?? $item->spareparts->count();
+            $spNames = $item->spareparts->pluck('nama_sparepart')->toArray();
+          @endphp
+        <div class="col-lg-3 col-md-4 col-sm-6 tipe-kendaraan-item" 
+             data-nama="{{ strtolower($item->nama) }}"
+             data-kode="{{ strtolower($item->kode_tipe_kendaraan ?? '') }}"
+             data-kategori="{{ strtolower($item->kategori?->nama ?? '') }}"
+             data-model="{{ strtolower($item->model?->nama ?? '') }}"
+             data-tahun="{{ strtolower($item->tahun_produksi ?? '') }}"
+             data-spareparts='@json($spNames)'
+             style="display: block;">
           
           <div class="card h-100 sparepart-card shadow-sm border-0">
             <div class="sparepart-img-container">
-              <span class="badge bg-dark badge-category">{{ $item['kategori'] }}</span>
-              <span class="badge bg-info text-dark badge-stock">
-                <i class="bi bi-gear-fill me-1"></i>{{ count($item['komponen']) }} Komponen
-              </span>
-              <img src="{{ asset($item['gambar']) }}" alt="{{ $item['nama'] }}" />
+              <!-- <span class="badge bg-success text-white badge-stock">
+                <i class="bi bi-gear-fill me-1"></i>{{ $spCount }} Sparepart
+              </span> -->
+              @if($item->gambar)
+                <img src="{{ asset($item->gambar) }}" alt="{{ $item->nama }}" />
+              @else
+                <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted w-100">
+                  <i class="bi bi-car-front fs-1"></i>
+                </div>
+              @endif
             </div>
 
             <div class="card-body d-flex flex-column">
-              <div class="text-muted fs-7 mb-1">{{ $item['kode'] }}</div>
               <h6 class="card-title fw-bold text-dark mb-2 line-clamp-2" style="min-height: 40px;">
-                {{ $item['nama'] }}
+                {{ $item->nama }}
               </h6>
 
-              <!-- Metadata Specs -->
-              <div class="bg-light p-2 rounded mb-3 fs-7">
-                <div class="d-flex justify-content-between mb-1">
-                  <span class="text-muted"><i class="bi bi-speedometer2 me-1"></i>Mesin:</span>
-                  <span class="fw-semibold">{{ $item['volume_mesin'] }}</span>
-                </div>
-                <div class="d-flex justify-content-between mb-1">
-                  <span class="text-muted"><i class="bi bi-car-front me-1"></i>Model:</span>
-                  <span class="fw-semibold">{{ $item['model'] }}</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                  <span class="text-muted"><i class="bi bi-calendar-event me-1"></i>Tahun:</span>
-                  <span class="fw-semibold">{{ $item['tahun'] }}</span>
-                </div>
+              <div class="d-flex flex-wrap gap-1 mb-3">
+                @if($item->model)
+                  <span class="badge bg-light text-dark border fs-8">{{ $item->model->nama }}</span>
+                @endif
+                @if($item->kategori)
+                  <span class="badge bg-info-subtle text-info border fs-8">{{ $item->kategori->nama }}</span>
+                @endif
+                @if($item->nomor_unit)
+                  <span class="badge bg-secondary-subtle text-secondary border fs-8">{{ $item->nomor_unit }}</span>
+                @endif
+                @if($item->tahun_produksi)
+                  <span class="badge bg-light text-dark border fs-8">{{ $item->tahun_produksi }}</span>
+                @endif
               </div>
 
               <div class="mt-auto">
                 <div class="d-grid gap-2">
-                  <a href="{{ route('spareparts.show', $item['id']) }}" class="btn btn-primary btn-sm rounded-pill fw-semibold">
-                    <i class="bi bi-card-checklist me-1"></i> Lihat Komponen Part
+                  <a href="{{ route('spareparts.show', $item->id) }}" class="btn btn-primary btn-sm rounded-pill fw-semibold">
+                    <i class="bi bi-arrow-right-circle me-1"></i> Lihat Detail
                   </a>
                 </div>
               </div>
             </div>
           </div>
         </div>
-        @endforeach
+        @empty
+        <div class="col-12 text-center py-5">
+          <i class="bi bi-inbox text-muted display-4"></i>
+          <p class="text-muted mt-2">Belum ada data tipe kendaraan di katalog database.</p>
+        </div>
+        @endforelse
       </div>
     </div>
 
@@ -292,13 +290,13 @@
       }
     });
 
-    // Eksekusi Pencarian saat Tombol "Cari Suku Cadang" Ditekan
+    // Eksekusi Pencarian saat Tombol "Cari Suku Cadang" / "Cari Tipe Kendaraan" Ditekan
     function executeSearch() {
       const keyword = $('#keywordSearch').val().toLowerCase().trim();
-      const selectedKategori = $('#filterKategori').val();
-      const selectedVolume = $('#filterVolume').val();
-      const selectedModel = $('#filterModel').val();
-      const selectedTahun = $('#filterTahun').val();
+      const selectedKategori = ($('#filterKategori').val() || '').toLowerCase().trim();
+      const selectedVolume = ($('#filterVolume').val() || '').toLowerCase().trim();
+      const selectedModel = ($('#filterModel').val() || '').toLowerCase().trim();
+      const selectedTahun = ($('#filterTahun').val() || '').toLowerCase().trim();
 
       // Sembunyikan tampilan awal (initialState) & munculkan section hasil
       $('#initialState').addClass('d-none');
@@ -306,16 +304,21 @@
 
       let visibleCount = 0;
 
-      $('.sparepart-item').each(function() {
-        const itemNama = $(this).data('nama');
-        const itemKode = $(this).data('kode');
-        const itemKategori = $(this).data('kategori');
-        const itemVolume = $(this).data('volume');
-        const itemModel = $(this).data('model');
-        const itemTahun = String($(this).data('tahun'));
+      $('.tipe-kendaraan-item').each(function() {
+        const itemNama = ($(this).data('nama') || '').toString();
+        const itemKode = ($(this).data('kode') || '').toString();
+        const itemKategori = ($(this).data('kategori') || '').toString();
+        const itemVolume = ($(this).data('volume') || '').toString();
+        const itemModel = ($(this).data('model') || '').toString();
+        const itemTahun = ($(this).data('tahun') || '').toString();
+        const itemSpareparts = $(this).data('spareparts') || [];
 
-        // Cek match keyword
-        const matchKeyword = !keyword || itemNama.includes(keyword) || itemKode.includes(keyword);
+        // Cek match keyword (match pada nama, kode, model, atau nama sparepart terhubung)
+        const matchKeyword = !keyword || 
+          itemNama.includes(keyword) || 
+          itemKode.includes(keyword) || 
+          itemModel.includes(keyword) || 
+          (Array.isArray(itemSpareparts) && itemSpareparts.some(s => (s || '').toString().toLowerCase().includes(keyword)));
 
         // Cek match dropdown filters
         const matchKategori = !selectedKategori || itemKategori === selectedKategori;
@@ -332,7 +335,7 @@
       });
 
       // Update counter hasil & penanganan empty state
-      $('#resultCount').text(visibleCount + ' Suku Cadang');
+      $('#resultCount').text(visibleCount + ' Tipe Kendaraan');
 
       if (visibleCount === 0) {
         $('#emptyState').removeClass('d-none');
@@ -341,7 +344,7 @@
       }
     }
 
-    // Klik tombol Cari Suku Cadang
+    // Klik tombol Cari
     $('#btnDoSearch').on('click', function() {
       executeSearch();
     });
@@ -356,6 +359,9 @@
     // Clear keyword search button
     $('#btnClearKeyword').on('click', function() {
       $('#keywordSearch').val('');
+      if ($('#resultsSection').is(':visible')) {
+        executeSearch();
+      }
     });
 
     // Reset All Filters & Kembalikan ke Tampilan Awal Kosong
@@ -366,13 +372,26 @@
       // Sembunyikan hasil & empty state, tampilkan initialState
       $('#resultsSection').addClass('d-none');
       $('#emptyState').addClass('d-none');
-      $('.sparepart-item').hide();
+      $('.tipe-kendaraan-item').hide();
       $('#initialState').removeClass('d-none');
     }
 
     $('#btnResetFilters, #btnResetEmptyState').on('click', function() {
       resetToInitialState();
     });
+
+    // Otomatis jalankan pencarian jika halaman dimuat dengan filter/keyword yang aktif
+    const hasInitialFilter = !!(
+      $('#keywordSearch').val() ||
+      $('#filterKategori').val() ||
+      $('#filterVolume').val() ||
+      $('#filterModel').val() ||
+      $('#filterTahun').val()
+    );
+
+    if (hasInitialFilter) {
+      executeSearch();
+    }
   });
 </script>
 @endpush
