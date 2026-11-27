@@ -72,13 +72,18 @@
       <div class="card-body p-4">
         <div class="row align-items-center g-3">
           <div class="col-md-2 text-center">
-            @if($tipeKendaraan->gambar)
-              <img src="{{ asset($tipeKendaraan->gambar) }}" alt="{{ $tipeKendaraan->nama }}" class="img-fluid rounded bg-white p-1 shadow-sm" style="max-height: 100px; object-fit: cover;">
-            @else
-              <div class="bg-white bg-opacity-25 rounded p-3 text-center">
-                <i class="bi bi-car-front display-4 text-white"></i>
-              </div>
-            @endif
+              @if($tipeKendaraan->gambar)
+                  <img
+                      src="{{ $tipeKendaraan->gambar_url }}"
+                      alt="{{ $tipeKendaraan->nama }}"
+                      class="img-fluid rounded bg-white p-1 shadow-sm"
+                      style="max-height: 100px; object-fit: cover;"
+                  >
+              @else
+                  <div class="bg-white bg-opacity-25 rounded p-3 text-center">
+                      <i class="bi bi-car-front display-4 text-white"></i>
+                  </div>
+              @endif
           </div>
           <div class="col-md-7">
             <span class="badge bg-white text-primary mb-2 fw-semibold">Tipe Kendaraan Terpilih</span>
@@ -124,7 +129,7 @@
                     <i class="bi bi-file-earmark-pdf fs-1"></i>
                   </div>
                 @else
-                  <img src="{{ asset($sp->gambar) }}" alt="{{ $sp->nama_sparepart }}" />
+                  <img src="{{ $sp->gambar_url }}" alt="{{ $sp->nama_sparepart }}" />
                 @endif
               @else
                 <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted w-100">

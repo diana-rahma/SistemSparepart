@@ -96,13 +96,24 @@
                   <!-- <td>
                     <span class="fw-bold text-dark">{{ $item->deskripsi }}</span>
                   </td> -->
+
                   <td>
                     @if($item->gambar)
-                      <img src="{{ asset($item->gambar) }}" alt="{{ $item->nama_sparepart }}" class="img-thumbnail" style="max-height: 50px; max-width: 80px; object-fit: cover;">
+                      @if(Str::endsWith(strtolower($item->gambar), '.pdf'))
+                        <a href="{{ $item->gambar_url }}" target="_blank" class="btn btn-sm btn-outline-danger">
+                          <i class="bi bi-file-earmark-pdf"></i> Lihat PDF
+                        </a>
+                      @else
+                        <img src="{{ $item->gambar_url }}"
+                            alt="{{ $item->nama_sparepart }}"
+                            class="img-thumbnail"
+                            style="max-height: 50px; max-width: 80px; object-fit: cover;">
+                      @endif
                     @else
                       <span class="badge bg-secondary">Belum ada gambar</span>
                     @endif
                   </td>
+
                   <td class="text-center">
                     <div class="btn-group btn-group-sm" role="group">
                       <a href="{{ route('admin.spareparts.mapping', $item->id) }}" class="btn btn-primary" title="Mapping Gambar Sparepart">

@@ -66,29 +66,45 @@
                 @enderror
               </div> -->
 
+
               <div class="mb-3">
                 <label for="gambar" class="form-label fw-bold">File Gambar / PDF Sparepart</label>
+
                 @if($sparepart->gambar)
                   <div class="mb-2">
                     @if(strtolower(pathinfo($sparepart->gambar, PATHINFO_EXTENSION)) === 'pdf')
-                      <span class="badge bg-danger fs-6 p-2"><i class="bi bi-file-earmark-pdf me-1"></i>Dokumen PDF Tersimpan</span>
+                      <a href="{{ $sparepart->gambar_url }}"
+                        target="_blank"
+                        class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-file-earmark-pdf me-1"></i>
+                        Lihat Dokumen PDF Tersimpan
+                      </a>
                     @else
-                      <img src="{{ asset($sparepart->gambar) }}" alt="{{ $sparepart->nama_sparepart }}" class="img-thumbnail rounded shadow-sm" style="max-height: 160px;">
+                      <img src="{{ $sparepart->gambar_url }}"
+                          alt="{{ $sparepart->nama_sparepart }}"
+                          class="img-thumbnail rounded shadow-sm"
+                          style="max-height: 160px;">
                     @endif
                   </div>
                 @endif
-                <input 
-                  type="file" 
-                  name="gambar" 
-                  id="gambar" 
+
+                <input
+                  type="file"
+                  name="gambar"
+                  id="gambar"
                   class="form-control @error('gambar') is-invalid @enderror"
                   accept="image/*,.pdf,application/pdf"
                 >
-                <small class="form-text text-muted">Biarkan kosong jika tidak ingin mengubah file gambar/PDF.</small>
+
+                <small class="form-text text-muted">
+                  Biarkan kosong jika tidak ingin mengubah file gambar/PDF.
+                </small>
+
                 @error('gambar')
                   <div class="invalid-feedback d-block">{{ $message }}</div>
                 @enderror
               </div>
+
 
             </div>
 

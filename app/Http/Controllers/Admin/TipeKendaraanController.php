@@ -58,13 +58,16 @@ class TipeKendaraanController extends Controller
             'gambar.max' => 'Ukuran gambar maksimal 4MB.',
         ]);
 
-        $model = isset($validated['id_model']) ? VehicleModel::findOrFail($validated['id_model']) : null;
+        $model = isset($validated['id_model'])
+            ? VehicleModel::findOrFail($validated['id_model'])
+            : null;
+
         $validated['nomor_model'] = $model?->nama;
         $validated['kode_tipe_kendaraan'] = $validated['nomor_model'] ?? null;
 
         if ($request->hasFile('gambar')) {
-            $path = $request->file('gambar')->store('tipe_kendaraan', 'public');
-            $validated['gambar'] = 'storage/' . $path;
+            $path = $request->file('gambar')->store('tipe_kendaraan', 'supabase');
+            $validated['gambar'] = $path;
         }
 
         $tipeKendaraan = TipeKendaraan::create($validated);
@@ -107,19 +110,29 @@ class TipeKendaraanController extends Controller
             'gambar.max' => 'Ukuran gambar maksimal 4MB.',
         ]);
 
-        $model = isset($validated['id_model']) ? VehicleModel::findOrFail($validated['id_model']) : null;
+        $model = isset($validated['id_model'])
+            ? VehicleModel::findOrFail($validated['id_model'])
+            : null;
+
         $validated['nomor_model'] = $model?->nama;
         $validated['kode_tipe_kendaraan'] = $validated['nomor_model'] ?? null;
 
+        // Simpan path gambar lama sebelum update.
+        $oldPath = $tipeKendaraan->gambar;
+        $newPath = null;
+
         if ($request->hasFile('gambar')) {
-            if ($tipeKendaraan->gambar && Storage::disk('public')->exists(str_replace('storage/', '', $tipeKendaraan->gambar))) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $tipeKendaraan->gambar));
-            }
-            $path = $request->file('gambar')->store('tipe_kendaraan', 'public');
-            $validated['gambar'] = 'storage/' . $path;
+            $newPath = $request->file('gambar')->store('tipe_kendaraan', 'supabase');
+            $validated['gambar'] = $newPath;
         }
 
+        // Perbarui data.
         $tipeKendaraan->update($validated);
+
+        // Hapus gambar lama setelah gambar baru berhasil diunggah dan data diperbarui.
+        if ($newPath && $oldPath) {
+            $this->deleteStoredImage($oldPath);
+        }
 
         return redirect()->route('admin.tipe_kendaraan.index')
             ->with('success', 'Data sarana kereta api berhasil diperbarui!');
@@ -128,10 +141,14 @@ class TipeKendaraanController extends Controller
     public function destroy($id)
     {
         $tipeKendaraan = TipeKendaraan::findOrFail($id);
-        if ($tipeKendaraan->gambar && Storage::disk('public')->exists(str_replace('storage/', '', $tipeKendaraan->gambar))) {
-            Storage::disk('public')->delete(str_replace('storage/', '', $tipeKendaraan->gambar));
-        }
+
+        $oldPath = $tipeKendaraan->gambar;
+
         $tipeKendaraan->delete();
+
+        if ($oldPath) {
+            $this->deleteStoredImage($oldPath);
+        }
 
         return redirect()->route('admin.tipe_kendaraan.index')
             ->with('success', 'Data sarana kereta api berhasil dihapus!');
@@ -181,5 +198,28 @@ class TipeKendaraanController extends Controller
 
         return redirect()->route('admin.tipe_kendaraan.spareparts', $tipeKendaraan->id)
             ->with('success', 'Sparepart berhasil dilepas dari tipe sarana!');
+    }
+
+    private function deleteStoredImage($path)
+    {
+        if (!$path || str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return;
+        }
+
+        // Mendukung path lama yang menggunakan awalan storage/.
+        $relativePath = str_starts_with($path, 'storage/')
+            ? substr($path, strlen('storage/'))
+            : $path;
+
+        // Periksa Supabase terlebih dahulu.
+        if (Storage::disk('supabase')->exists($relativePath)) {
+            Storage::disk('supabase')->delete($relativePath);
+            return;
+        }
+
+        // Jika tidak ada di Supabase, periksa penyimpanan lokal.
+        if (Storage::disk('public')->exists($relativePath)) {
+            Storage::disk('public')->delete($relativePath);
+        }
     }
 }

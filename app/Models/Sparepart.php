@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Sparepart extends Model
 {
@@ -13,6 +15,26 @@ class Sparepart extends Model
         'deskripsi',
         'gambar',
     ];
+
+    public function getGambarUrlAttribute(): ?string
+    {
+        if (!$this->gambar) {
+            return null;
+        }
+
+        // Jika sudah berupa URL lengkap, gunakan langsung.
+        if (Str::startsWith($this->gambar, ['http://', 'https://'])) {
+            return $this->gambar;
+        }
+
+        // File lama yang masih tersimpan di Laravel public storage.
+        if (Str::startsWith($this->gambar, 'storage/')) {
+            return asset($this->gambar);
+        }
+
+        // File baru yang tersimpan di Supabase Storage.
+        return Storage::disk('supabase')->url($this->gambar);
+    }
 
     public function sparepartParts()
     {

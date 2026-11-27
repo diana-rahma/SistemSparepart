@@ -158,7 +158,7 @@
                     Memuat dokumen PDF...
                   </div>
                 @else
-                  <img src="{{ asset($sparepart->gambar) }}" alt="{{ $sparepart->nama_sparepart }}" class="sparepart-image" id="sparepartImg">
+                  <img src="{{ $sparepart->gambar_url }}" alt="{{ $sparepart->nama_sparepart }}" class="sparepart-image" id="sparepartImg">
                 @endif
 
                 <!-- Container for Interactive Markers -->
@@ -332,7 +332,7 @@
   }
 
   document.addEventListener('DOMContentLoaded', function () {
-    const fileUrl = "{{ asset($sparepart->gambar) }}";
+    const fileUrl = @json($sparepart->gambar_url);
     const isPdf = {{ !empty($sparepart->gambar) && strtolower(pathinfo($sparepart->gambar, PATHINFO_EXTENSION)) === 'pdf' ? 'true' : 'false' }};
 
     const mappedParts = [

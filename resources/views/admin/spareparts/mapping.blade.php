@@ -85,7 +85,10 @@
                   <canvas id="pdfCanvas" class="sparepart-pdf-canvas"></canvas>
                   <div id="pdfLoadingSpinner" class="py-5 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Memuat dokumen PDF...</div>
                 @else
-                  <img src="{{ asset($sparepart->gambar) }}" alt="{{ $sparepart->nama_sparepart }}" class="sparepart-image" draggable="false">
+                  <img src="{{ $sparepart->gambar_url }}"
+                    alt="{{ $sparepart->nama_sparepart }}"
+                    class="sparepart-image"
+                    draggable="false">
                 @endif
 
                 <svg id="arrowLayer">
@@ -215,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
   };
   const CSRF = '{{ csrf_token() }}';
   const IS_PDF = @json($isPdf);
-  const FILE_URL = "{{ asset($sparepart->gambar) }}";
+  const FILE_URL = @json($sparepart->gambar_url);
   const BOX_PCT = 4.8;        // lebar kotak nomor (% lebar gambar), tinggi mengikuti (persegi)
   const MIN_ARROW_PX = 20;    // panah lebih pendek dari ini dianggap klik biasa
 

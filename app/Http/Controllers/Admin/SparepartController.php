@@ -39,32 +39,33 @@ class SparepartController extends Controller
     /**
      * Store a newly created resource in storage and redirect directly to mapping page.
      */
-    public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nama_sparepart' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string|max:1000',
-            'gambar' => 'required|file|mimes:jpeg,png,jpg,webp,svg,pdf|max:10240',
-        ], [
-            'nama_sparepart.required' => 'Nama sparepart wajib diisi.',
-            'nama_sparepart.max' => 'Nama sparepart maksimal 255 karakter.',
-            'gambar.required' => 'File gambar/PDF sparepart wajib diunggah.',
-            'gambar.file' => 'File tidak valid.',
-            'gambar.mimes' => 'Format file harus jpeg, png, jpg, webp, svg, atau pdf.',
-            'gambar.max' => 'Ukuran file maksimal 10MB.',
-        ]);
 
-        if ($request->hasFile('gambar')) {
-            $path = $request->file('gambar')->store('spareparts', 'public');
-            $validated['gambar'] = 'storage/' . $path;
-        }
+public function store(Request $request)
+{
+    $validated = $request->validate([
+        'nama_sparepart' => 'required|string|max:255',
+        'deskripsi' => 'nullable|string|max:1000',
+        'gambar' => 'required|file|mimes:jpeg,png,jpg,webp,svg,pdf|max:10240',
+    ], [
+        'nama_sparepart.required' => 'Nama sparepart wajib diisi.',
+        'nama_sparepart.max' => 'Nama sparepart maksimal 255 karakter.',
+        'gambar.required' => 'File gambar/PDF sparepart wajib diunggah.',
+        'gambar.file' => 'File tidak valid.',
+        'gambar.mimes' => 'Format file harus jpeg, png, jpg, webp, svg, atau pdf.',
+        'gambar.max' => 'Ukuran file maksimal 10MB.',
+    ]);
 
-        $sparepart = Sparepart::create($validated);
+    if ($request->hasFile('gambar')) {
+        $path = $request->file('gambar')->store('spareparts', 'supabase');
 
-        // Directly redirect to image mapping page for the newly created sparepart
-        return redirect()->route('admin.spareparts.mapping', $sparepart->id)
-            ->with('success', 'Sparepart berhasil ditambahkan! Silakan lakukan mapping gambar berikut.');
+        $validated['gambar'] = $path;
     }
+
+    $sparepart = Sparepart::create($validated);
+
+    return redirect()->route('admin.spareparts.mapping', $sparepart->id)
+        ->with('success', 'Sparepart berhasil ditambahkan! Silakan lakukan mapping gambar berikut.');
+}
 
     /**
      * Display the mapping interface for the sparepart image.
@@ -215,6 +216,8 @@ class SparepartController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    
+
     public function update(Request $request, $id)
     {
         $sparepart = Sparepart::findOrFail($id);
@@ -231,33 +234,59 @@ class SparepartController extends Controller
             'gambar.max' => 'Ukuran file maksimal 10MB.',
         ]);
 
+        // Simpan path gambar lama sebelum data diperbarui.
+        $oldPath = $sparepart->gambar;
+        $newPath = null;
+
+        // Jika ada file baru, unggah ke Supabase.
         if ($request->hasFile('gambar')) {
-            // Option to delete old file if exists
-            if ($sparepart->gambar && Storage::disk('public')->exists(str_replace('storage/', '', $sparepart->gambar))) {
-                Storage::disk('public')->delete(str_replace('storage/', '', $sparepart->gambar));
-            }
-            $path = $request->file('gambar')->store('spareparts', 'public');
-            $validated['gambar'] = 'storage/' . $path;
+            $newPath = $request->file('gambar')->store('spareparts', 'supabase');
+            $validated['gambar'] = $newPath;
         }
 
+        // Perbarui data sparepart.
         $sparepart->update($validated);
+
+        // Hapus file lama hanya jika file baru berhasil diunggah
+        // dan file lama memang tersimpan di Supabase.
+        if ($newPath && $oldPath &&
+            !str_starts_with($oldPath, 'storage/') &&
+            !str_starts_with($oldPath, 'http://') &&
+            !str_starts_with($oldPath, 'https://')) {
+            Storage::disk('supabase')->delete($oldPath);
+        }
 
         return redirect()->route('admin.spareparts.mapping', $sparepart->id)
             ->with('success', 'Data sparepart berhasil diperbarui!');
     }
 
+
+
     /**
      * Remove the specified resource from storage.
      */
+
     public function destroy($id)
     {
         $sparepart = Sparepart::findOrFail($id);
-        if ($sparepart->gambar && Storage::disk('public')->exists(str_replace('storage/', '', $sparepart->gambar))) {
-            Storage::disk('public')->delete(str_replace('storage/', '', $sparepart->gambar));
+
+        $oldPath = $sparepart->gambar;
+
+        // Hapus file dari Supabase jika menggunakan path Supabase.
+        if (
+            $oldPath &&
+            !str_starts_with($oldPath, 'storage/') &&
+            !str_starts_with($oldPath, 'http://') &&
+            !str_starts_with($oldPath, 'https://')
+        ) {
+            Storage::disk('supabase')->delete($oldPath);
         }
+
+        // Hapus data sparepart dari database.
         $sparepart->delete();
 
         return redirect()->route('admin.spareparts.index')
             ->with('success', 'Data sparepart berhasil dihapus!');
     }
+
 }

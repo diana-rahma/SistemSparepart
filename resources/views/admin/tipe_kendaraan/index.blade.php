@@ -77,9 +77,9 @@
                   </td>
                   <td class="text-center">
                     @if($item->gambar)
-                      <img src="{{ asset($item->gambar) }}" alt="{{ $item->nama }}" class="img-thumbnail rounded" style="max-height: 45px; max-width: 60px; object-fit: cover;">
+                        <img src="{{ $item->gambar_url }}" alt="{{ $item->nama }}" class="img-thumbnail rounded" style="max-height: 45px; max-width: 60px; object-fit: cover;">
                     @else
-                      <span class="badge bg-secondary">No Img</span>
+                        <span class="badge bg-secondary">No Img</span>
                     @endif
                   </td>
                   <td><span class="fw-bold text-dark">{{ $item->nama }}</span></td>

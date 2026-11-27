@@ -80,7 +80,7 @@
         <div class="row align-items-center g-3">
           <div class="col-md-2 text-center">
             @if($tipeKendaraan->gambar)
-              <img src="{{ asset($tipeKendaraan->gambar) }}" alt="{{ $tipeKendaraan->nama }}" class="vehicle-img-preview img-fluid shadow-sm" />
+              <img src="{{ $tipeKendaraan->gambar_url }}" alt="{{ $tipeKendaraan->nama }}" class="vehicle-img-preview img-fluid shadow-sm" />
             @else
               <div class="bg-secondary bg-opacity-25 p-4 rounded text-center text-muted">
                 <i class="bi bi-train-front display-6 text-primary"></i>
@@ -222,7 +222,7 @@
                               <i class="bi bi-file-earmark-pdf fs-5"></i>
                             </div>
                           @else
-                            <img src="{{ asset($sp->gambar) }}" alt="{{ $sp->nama_sparepart }}" class="rounded img-thumbnail" style="width: 40px; height: 40px; object-fit: cover;">
+                            <img src="{{ $sp->gambar_url }}" alt="{{ $sp->nama_sparepart }}" class="rounded img-thumbnail" style="width: 40px; height: 40px; object-fit: cover;">
                           @endif
                         @else
                           <div class="bg-light text-muted rounded text-center p-1" style="width: 40px; height: 40px;">

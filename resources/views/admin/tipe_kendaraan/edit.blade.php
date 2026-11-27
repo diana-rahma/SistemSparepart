@@ -116,7 +116,7 @@
                 <label for="gambar" class="form-label fw-bold">Gambar Sarana / Kereta</label>
                 @if($tipeKendaraan->gambar)
                   <div class="mb-2">
-                    <img src="{{ asset($tipeKendaraan->gambar) }}" alt="{{ $tipeKendaraan->nama }}" class="img-thumbnail rounded shadow-sm" style="max-height: 150px;">
+                    <img src="{{ $tipeKendaraan->gambar_url }}" alt="{{ $tipeKendaraan->nama }}" class="img-thumbnail rounded shadow-sm" style="max-height: 150px;">
                   </div>
                 @endif
                 <input type="file" name="gambar" id="gambar" class="form-control @error('gambar') is-invalid @enderror" accept="image/*">

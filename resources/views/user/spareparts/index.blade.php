@@ -221,7 +221,7 @@
                 <i class="bi bi-gear-fill me-1"></i>{{ $spCount }} Sparepart
               </span> -->
               @if($item->gambar)
-                <img src="{{ asset($item->gambar) }}" alt="{{ $item->nama }}" />
+                <img src="{{ $item->gambar_url }}" alt="{{ $item->nama }}" />
               @else
                 <div class="d-flex align-items-center justify-content-center h-100 bg-light text-muted w-100">
                   <i class="bi bi-car-front fs-1"></i>
